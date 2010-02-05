@@ -1,7 +1,7 @@
 {
-  "name": "chromr",
+  "name": "awesometab",
   "version": "0.1",
-  "description": "Flickr Interestingness in the new tab",
+  "description": "Awesome stuff in the new tab",
   "background_page": "service.html",
   "chrome_url_overrides": {
     "newtab": "newtab.html"

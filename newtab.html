@@ -1,44 +1,65 @@
 <html>
 <head> 
 <title>Interestingness</title> 
+<script src="http://code.jquery.com/jquery-1.4.1.min.js"></script>
 <script>
  
 var current_idx;
 
-function load(photo) {
-  var key = '08be316ee5aaa43c0fb40c3d496d4a3c';
-  var url = "http://api.flickr.com/services/rest/?format=json&nojsoncallback=1&method=flickr.photos.getInfo&api_key="+key+"&photo_id="+photo.id;
-  var req = new XMLHttpRequest();
-  req.open('GET', url, true);
-  req.onreadystatechange = function() {
-    if (req.readyState == 4) {
-      var res = JSON.parse(req.responseText)
-      console.log(res)
-      p = res.photo
-      var h = 'http://farm'+p.farm+'.static.flickr.com/'+p.server+'/'+p.id+'_'+p.secret+'_b.jpg';
-    	document.getElementById('content').innerHTML = "<img src='"+h+"'/>";
-    	var info = document.getElementById('info');
-    	info.innerText = p.title._content || 'untitled';
-    	info.setAttribute('href', p.urls.url[0]._content)
-    }
+function load(contentitem) {
+  if (!contentitem) return;
+  if (contentitem.photo) {
+    show_photo(contentitem.photo); 
   }
-  req.send();
+}
+
+function bgload(bg_url) {
+  $('body').css('backgroundImage', 'url(' + bg_url + ')');
+}
+
+
+function show_photo(photo) {
+  $('#photo').attr('src', photo.src);
+  var title = document.getElementById('title');
+  $('#title').innerText = photo.title._content || 'untitled';
+  title.setAttribute('href', photo.urls.url[0]._content);
+  document.getElementById('buddyicon').setAttribute('src', photo.buddyicon);
+  $('.flickrlink').attr('href', photo.urls.url[0]._content);
+  document.getElementById('buddyicon').setAttribute('title', photo.owner.realname);
+}
+
+
+function load_tweet(tweeturl) {
+   
+}
+
+function get_setting(setting_name, preset) {
+  var page = chrome.extension.getBackgroundPage();
+  if (page[setting_name]) return page[setting_name];
+  if (preset) return preset;
+  return "";
 }
 
 function init() {
-  var photos = chrome.extension.getBackgroundPage().photos;
-  current_idx = Math.floor(Math.random()*photos.length);
-  load(photos[current_idx]);
+  var contentviewer = chrome.extension.getBackgroundPage().contentviewer;
+  var bg_url = get_setting('background_theme_url');
+  bgload(bg_url);
+  load(contentviewer.getNext());
+  /*
   document.addEventListener('keypress', function(e) {
     if (e.keyCode==106) {
-      current_idx = (current_idx + 1) % photos.length;
-      load(photos[current_idx]);
+      current_idx = (current_idx + 1) % content.length;
+      load(content[current_idx]);
     }
     if (e.keyCode==107) {
-      current_idx = (current_idx - 1 + photos.length) % photos.length;
-      load(photos[current_idx]);
+      current_idx = (current_idx - 1 + content.length) % content.length;
+      load(content[current_idx]);
     }
   }, true);
+  
+  */
+  
+  
 };
 
 window.onload = init;
@@ -51,57 +72,32 @@ window.onload = init;
     padding: 0;
 }
 
-html, body, #bg, #bg table, #bg td {
+html, body {
     height:100%;
     width:100%;
     overflow:hidden;
-    background: #000;
+    /* background: #000; */
 }
 
 #bg {
-    position: fixed;
+  text-align: center;
+  vertical-align: center;
+  margin-top: 80px; 
+  
+}
+.flickrimg {
+   border: 20px solid rgba(0,0,0,0.5);
+   -webkit-border-radius: 20px; 
 }
 
-#bg div {
-    height:200%;
-    left:-50%;
-    position:absolute;
-    top:-50%;
-    width:200%;
-}
-
-#bg td {
-    text-align:center;
-    vertical-align:middle;
-}
-
-#bg img {
-    margin:0 auto;
-    min-height:50%;
-    min-width:50%;
-}
-#info {
-  background: rgba(0,0,0,0.5);
-  bottom: 50px;
-  color: #fff;
-  width: 100%;
-  font-size: 24px;
-  padding: 1em;
-  position: fixed;
-  text-decoration: none;
-}
 </style> 
 </head> 
 <body> 
-  <div id="bg">
-      <div>
-          <table cellspacing="0" cellpadding="0">
-              <tr>
-                  <td id="content"></td>
-              </tr>
-          </table>
-      </div>
-  </div>
-  <a id="info"></a>
+  
+    <div id="bg">
+      <div id="content"><a class="flickrlink"><img class="flickrimg" id="photo"/></a></div>
+    </div>
+     <div style="display: none;"><div id="info"><a id="owner"><img id="buddyicon"><span id="name"></span></a><a id="title"></a></div></div>
+  
 </body> 
 </html>
