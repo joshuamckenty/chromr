@@ -1,12 +1,15 @@
 <html>
 <script src="customized.js"></script>
 <script src="flickr.js"></script>
+<script src="twitter.js"></script>
 <script type="text/javascript">
 
   var contentviewer = {};
   contentviewer.getNext = function _getnext() {
     var item = {};
-    if (1) {
+    if (Math.random() > 0.5) {
+      item.twitter = twitter_getNext();
+    } else {
       item.photo = flickr_getNext();
     }
    return item; 
